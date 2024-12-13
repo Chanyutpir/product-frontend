@@ -1,26 +1,16 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-light bg-light">
       <div class="container">
         <a class="navbar-brand" href="#">ร้านค้า</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link" href="/products">Product</a>
-            </li>
-          </ul>
-        </div> -->
+        <div class="d-flex">
+          <NuxtLink to="/login" class="btn btn-outline-success"
+            >เข้าสู่ระบบ</NuxtLink
+          >
+          <button @click="logout" class="btn btn-outline-danger ms-3">
+            ออกจากระบบ
+          </button>
+        </div>
       </div>
     </nav>
     <div class="container py-4">
@@ -28,3 +18,13 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import { useRouter } from "vue-router";
+const router = useRouter();
+
+const logout = () => {
+  localStorage.removeItem("jwt_token");
+  router.push("/login");
+};
+</script>

@@ -11,7 +11,7 @@
       </div>
       <div
         class="col-md-6 col-lg-3 mt-4"
-        v-for="product in products"
+        v-for="product in reversedProducts"
         :key="product.id"
       >
         <div class="card shadow-lg">
@@ -29,8 +29,8 @@
             <p class="card-text text-truncate">
               {{ product.product_detail }}
             </p>
-            <h5 class="text-end price">
-              ฿ {{ product.price.toLocaleString() }}
+            <h5 class="text-end price d-flex justify-content-between">
+              <span>ราคา</span> ฿ {{ product.price.toLocaleString() }}
             </h5>
             <div class="d-flex">
               <NuxtLink
@@ -61,13 +61,33 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-
 const products = ref([]);
 const count = ref(null);
+const token = ref("");
+
+const getToken = async () => {
+  const jwt_token = localStorage.getItem("jwt_token");
+  //   console.log("JWT:", jwt_token);
+  if (!jwt_token) {
+    alert("You are not authenticated. Please log in.");
+    window.location.href = "/login";
+    return;
+  }
+  token.value = jwt_token;
+};
+
+const reversedProducts = computed(() => products.value.slice().reverse());
 
 const fetchProducts = async () => {
+  getToken();
   try {
-    const response = await fetch("http://localhost:5000/products");
+    const response = await fetch("http://localhost:5000/products", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+        "Content-Type": "application/json",
+      },
+    });
     products.value = await response.json();
     count.value = products.value.length;
   } catch (error) {
@@ -81,6 +101,10 @@ const deleteProduct = async (id) => {
     try {
       const response = await fetch(uri, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+          "Content-Type": "application/json",
+        },
       });
       if (response.ok) {
         location.reload();
@@ -104,7 +128,7 @@ onMounted(() => {
   overflow: hidden;
 }
 .card-img-top {
-  height: 220px;
+  height: 250px;
   object-fit: cover;
   object-position: center;
 }

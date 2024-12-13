@@ -99,8 +99,6 @@ const router = useRouter();
 const route = useRoute();
 
 var count = parseInt(route.params.count);
-// const id = parseInt(route.params.id);
-const uri = "http://localhost:5000/products/" + count;
 
 const newProduct = ref({
   id: ++count,
@@ -125,10 +123,19 @@ const addProduct = async () => {
     product_weight: newProduct.value.product_weight,
   };
   console.log(product, "newProduct");
+
+  const jwt_token = localStorage.getItem("jwt_token");
+  if (!jwt_token) {
+    alert("You are not authenticated. Please log in.");
+    window.location.href = "/login";
+    return;
+  }
+
   try {
     const response = await fetch("http://localhost:5000/products", {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${jwt_token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(product),

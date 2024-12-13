@@ -99,7 +99,7 @@ const router = useRouter();
 const route = useRoute();
 const id = parseInt(route.params.id);
 const uri = "http://localhost:5000/products/" + id;
-
+const token = ref("");
 const newProduct = ref({
   sku: "",
   product_name: "",
@@ -109,6 +109,17 @@ const newProduct = ref({
   product_size: "",
   product_weight: "",
 });
+
+const getToken = async () => {
+  const jwt_token = localStorage.getItem("jwt_token");
+//   console.log("JWT:", jwt_token);
+  if (!jwt_token) {
+    alert("You are not authenticated. Please log in.");
+    window.location.href = "/login";
+    return;
+  }
+  token.value = jwt_token;
+};
 
 const updateProduct = async () => {
   const product = {
@@ -125,6 +136,7 @@ const updateProduct = async () => {
     const response = await fetch(uri, {
       method: "PUT",
       headers: {
+        Authorization: `Bearer ${token.value}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(product),
@@ -141,8 +153,16 @@ const updateProduct = async () => {
 };
 
 const fetchProductDetails = async () => {
+  getToken();
   try {
-    const response = await fetch(uri);
+    // const response = await fetch(uri);
+    const response = await fetch(uri, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+        "Content-Type": "application/json",
+      },
+    });
     const data = await response.json();
     newProduct.value.id = data.id;
     newProduct.value.sku = data.sku;
